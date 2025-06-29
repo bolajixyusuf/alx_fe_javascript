@@ -51,6 +51,7 @@ function addQuote() {
 
   quotes.push({ text: newText, category: newCategory });
   saveQuotes();
+  postQuoteToServer({ text: newText, category: newCategory });
 
   textInput.value = "";
   categoryInput.value = "";
@@ -272,3 +273,20 @@ document.addEventListener("DOMContentLoaded", function () {
   syncWithServer();
   setInterval(syncWithServer, 30000);
 });
+
+function postQuoteToServer(quote) {
+  fetch("https://jsonplaceholder.typicode.com/posts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(quote)
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Quote posted to server:", data);
+  })
+  .catch(error => {
+    console.error("Failed to post quote:", error);
+  });
+}
