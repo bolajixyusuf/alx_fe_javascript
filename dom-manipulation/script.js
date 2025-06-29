@@ -210,7 +210,7 @@ async function fetchQuotesFromServer() {
 }
 
 // Sync quotes from server and resolve conflicts
-function syncWithServer() {
+function syncQuotes() {
   fetchQuotesFromServer().then(serverQuotes => {
     let newQuotes = 0;
 
@@ -270,8 +270,8 @@ document.addEventListener("DOMContentLoaded", function () {
   document.body.appendChild(importInput);
 
   // Initial sync + periodic sync every 30s
-  syncWithServer();
-  setInterval(syncWithServer, 30000);
+  syncQuotes();
+setInterval(syncQuotes, 30000);
 });
 
 function postQuoteToServer(quote) {
