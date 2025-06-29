@@ -56,7 +56,7 @@ function addQuote() {
   categoryInput.value = "";
 
   populateCategories();
-  filterQuotes(); // Show based on current filter
+  filterQuotes();
 
   alert("Quote added!");
 }
@@ -172,12 +172,68 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// Run on page load
+// Show a notification banner
+function showNotification(message) {
+  let notif = document.getElementById("syncNotification");
+  if (!notif) {
+    notif = document.createElement("div");
+    notif.id = "syncNotification";
+    notif.style.backgroundColor = "#fffae6";
+    notif.style.color = "#000";
+    notif.style.border = "1px solid #ccc";
+    notif.style.padding = "10px";
+    notif.style.margin = "10px 0";
+    notif.style.fontWeight = "bold";
+    document.body.insertBefore(notif, document.getElementById("quoteDisplay"));
+  }
+  notif.textContent = message;
+}
+
+// Simulate fetching quotes from a server
+function fetchServerQuotes() {
+  return new Promise(resolve => {
+    const simulatedQuotes = [
+      { text: "Server quote 1", category: "Motivation" },
+      { text: "Server quote 2", category: "Inspiration" }
+    ];
+    setTimeout(() => resolve(simulatedQuotes), 1000);
+  });
+}
+
+// Sync quotes with server, resolve conflicts
+function syncWithServer() {
+  fetchServerQuotes().then(serverQuotes => {
+    let newQuotes = 0;
+
+    serverQuotes.forEach(serverQuote => {
+      const exists = quotes.some(
+        q => q.text === serverQuote.text && q.category === serverQuote.category
+      );
+      if (!exists) {
+        quotes.push(serverQuote);
+        newQuotes++;
+      }
+    });
+
+    if (newQuotes > 0) {
+      saveQuotes();
+      populateCategories();
+      filterQuotes();
+      showNotification(`${newQuotes} new quote(s) added from server.`);
+    } else {
+      console.log("No new quotes from server.");
+    }
+  }).catch(() => {
+    showNotification("Error syncing with server.");
+  });
+}
+
+// On page load
 document.addEventListener("DOMContentLoaded", function () {
   loadQuotes();
   createAddQuoteForm();
 
-  // Create filter dropdown
+  // Create category filter dropdown
   const categorySelect = document.createElement("select");
   categorySelect.id = "categoryFilter";
   categorySelect.addEventListener("change", filterQuotes);
@@ -206,4 +262,8 @@ document.addEventListener("DOMContentLoaded", function () {
   importInput.accept = ".json";
   importInput.addEventListener("change", importFromJsonFile);
   document.body.appendChild(importInput);
+
+  // Initial sync + periodic sync
+  syncWithServer();
+  setInterval(syncWithServer, 30000); // every 30s
 });
