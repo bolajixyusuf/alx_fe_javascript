@@ -36,7 +36,7 @@ function showRandomQuote() {
   displayDiv.appendChild(quoteCategory);
 }
 
-// Add a new quote and refresh DOM + storage
+// Add a new quote
 function addQuote() {
   const textInput = document.getElementById("newQuoteText");
   const categoryInput = document.getElementById("newQuoteCategory");
@@ -61,7 +61,7 @@ function addQuote() {
   alert("Quote added!");
 }
 
-// Dynamically create add-quote form
+// Create the add-quote form dynamically
 function createAddQuoteForm() {
   const formDiv = document.createElement("div");
 
@@ -87,7 +87,7 @@ function createAddQuoteForm() {
   document.body.appendChild(formDiv);
 }
 
-// Populate dropdown with unique categories
+// Populate category dropdown
 function populateCategories() {
   const filterDropdown = document.getElementById("categoryFilter");
   const selected = localStorage.getItem("selectedCategory") || "all";
@@ -105,7 +105,7 @@ function populateCategories() {
   filterDropdown.value = selected;
 }
 
-// Filter quotes based on selected category
+// Filter quotes by category
 function filterQuotes() {
   const selectedCategory = document.getElementById("categoryFilter").value;
   localStorage.setItem("selectedCategory", selectedCategory);
@@ -134,7 +134,7 @@ function filterQuotes() {
   });
 }
 
-// Export to JSON
+// Export quotes to JSON file
 function exportQuotesToJson() {
   const dataStr = JSON.stringify(quotes, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
@@ -148,7 +148,7 @@ function exportQuotesToJson() {
   URL.revokeObjectURL(url);
 }
 
-// Import from JSON
+// Import quotes from JSON file
 function importFromJsonFile(event) {
   const fileReader = new FileReader();
 
@@ -172,7 +172,7 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// Show a notification banner
+// Show notification banner
 function showNotification(message) {
   let notif = document.getElementById("syncNotification");
   if (!notif) {
@@ -189,18 +189,26 @@ function showNotification(message) {
   notif.textContent = message;
 }
 
-// Simulate fetching quotes from a server
-function fetchQuotesFromServer() {
-  return new Promise(resolve => {
-    const simulatedQuotes = [
-      { text: "Server quote 1", category: "Motivation" },
-      { text: "Server quote 2", category: "Inspiration" }
-    ];
-    setTimeout(() => resolve(simulatedQuotes), 1000);
-  });
+// ✅ Fetch quotes from mock server using async/await
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const data = await response.json();
+
+    // Simulate quotes by using post titles
+    const serverQuotes = data.slice(0, 5).map(post => ({
+      text: post.title,
+      category: "Server"
+    }));
+
+    return serverQuotes;
+  } catch (error) {
+    console.error("Failed to fetch from server:", error);
+    return [];
+  }
 }
 
-// Sync quotes with server, resolve conflicts
+// Sync quotes from server and resolve conflicts
 function syncWithServer() {
   fetchQuotesFromServer().then(serverQuotes => {
     let newQuotes = 0;
@@ -228,7 +236,7 @@ function syncWithServer() {
   });
 }
 
-// On page load
+// Initialize app on page load
 document.addEventListener("DOMContentLoaded", function () {
   loadQuotes();
   createAddQuoteForm();
@@ -242,20 +250,17 @@ document.addEventListener("DOMContentLoaded", function () {
   populateCategories();
   filterQuotes();
 
-  // Show Random Quote button
   const newQuoteButton = document.getElementById("newQuote");
   if (newQuoteButton) {
     newQuoteButton.addEventListener("click", showRandomQuote);
   }
 
-  // Export button
   const exportBtn = document.createElement("button");
   exportBtn.id = "exportBtn";
   exportBtn.textContent = "Export Quotes (JSON)";
   exportBtn.addEventListener("click", exportQuotesToJson);
   document.body.appendChild(exportBtn);
 
-  // Import input
   const importInput = document.createElement("input");
   importInput.type = "file";
   importInput.id = "importFile";
@@ -263,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
   importInput.addEventListener("change", importFromJsonFile);
   document.body.appendChild(importInput);
 
-  // Initial sync + periodic sync
+  // Initial sync + periodic sync every 30s
   syncWithServer();
-  setInterval(syncWithServer, 30000); // every 30s
+  setInterval(syncWithServer, 30000);
 });
