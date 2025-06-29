@@ -31,7 +31,19 @@ function createAddQuoteForm() {
   textInput.value = "";
   categoryInput.value = "";
 
-  alert("Quote added successfully!");
+   const quoteDisplay = document.getElementById("quoteDisplay");
+  quoteDisplay.innerHTML = ""; // Clear previous content
+
+  const quoteText = document.createElement("p");
+  quoteText.textContent = `"${newText}"`;
+
+  const quoteCategory = document.createElement("p");
+  quoteCategory.textContent = `Category: ${newCategory}`;
+
+  quoteDisplay.appendChild(quoteText);
+  quoteDisplay.appendChild(quoteCategory);
+
+  alert("Quote added and displayed!");
 }
 
 document.getElementById("newQuote").addEventListener("click", showRandomQuote);
