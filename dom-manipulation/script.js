@@ -190,7 +190,7 @@ function showNotification(message) {
 }
 
 // Simulate fetching quotes from a server
-function fetchServerQuotes() {
+function fetchQuotesFromServer() {
   return new Promise(resolve => {
     const simulatedQuotes = [
       { text: "Server quote 1", category: "Motivation" },
@@ -202,7 +202,7 @@ function fetchServerQuotes() {
 
 // Sync quotes with server, resolve conflicts
 function syncWithServer() {
-  fetchServerQuotes().then(serverQuotes => {
+  fetchQuotesFromServer().then(serverQuotes => {
     let newQuotes = 0;
 
     serverQuotes.forEach(serverQuote => {
