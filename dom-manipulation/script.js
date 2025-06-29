@@ -225,13 +225,13 @@ function syncQuotes() {
     });
 
     if (newQuotes > 0) {
-      saveQuotes();
-      populateCategories();
-      filterQuotes();
-      showNotification(`${newQuotes} new quote(s) added from server.`);
-    } else {
-      console.log("No new quotes from server.");
-    }
+  saveQuotes();
+  populateCategories();
+  filterQuotes();
+  showNotification(`${newQuotes} new quote(s) added from server.`);
+} else {
+  showNotification("Quotes synced with server!");
+}
   }).catch(() => {
     showNotification("Error syncing with server.");
   });
